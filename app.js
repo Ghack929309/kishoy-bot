@@ -5,11 +5,6 @@ import cors from "cors";
 import notificationRoutes from "./routes/notifications.routes.js";
 import { client } from "./lib/index.js";
 import discordServer from "./discord/index.js";
-import {
-  eventChannelName,
-  errorChannelName,
-  fatalChannelName,
-} from "./constant/index.js";
 
 config();
 
@@ -33,11 +28,11 @@ app.use(notificationRoutes);
 
 app.listen(PORT, () => {
   console.log(`bot server is running on port ${PORT}`);
+  client.login(process.env.DISCORD_TOKEN);
 
   client.once("ready", () => {
     console.log(`Logged in as ${client.user.username}!`);
   });
-  client.login(process.env.DISCORD_TOKEN);
   discordServer.getGuildId();
   client.on("guildDelete", (guild) => {
     console.log(`Bot removed from server: ${guild.name} (ID: ${guild.id})`);

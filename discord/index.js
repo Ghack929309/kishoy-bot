@@ -66,24 +66,29 @@ class Discord {
         channelName: errorChannelName,
       });
       channel.send(message);
+      console.log("error message sent");
     } else if (type === MESSAGE_TYPE.EVENT) {
       const channel = await this.verifyChannel({
         channelName: eventChannelName,
       });
       channel.send(message);
+      console.log("event message sent");
     } else if (type === MESSAGE_TYPE.FATAL) {
       const channel = await this.verifyChannel({
         channelName: fatalChannelName,
       });
       channel.send(message);
+      console.log("fatal message sent");
     }
   }
-  preventMessageDeletion(deletedMessage) {
+  async preventMessageDeletion(deletedMessage) {
     const restrictedChannels = [
       eventChannelName,
       errorChannelName,
       fatalChannelName,
     ];
+    if (deletedMessage.partial) await deletedMessage.fetch(true);
+
     if (
       restrictedChannels.includes(deletedMessage.channel.name) &&
       deletedMessage.author.bot
