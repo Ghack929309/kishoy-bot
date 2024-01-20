@@ -1,4 +1,5 @@
 import discordServer from "../discord/index.js";
+import { EmbedBuilder } from "discord.js";
 
 export const errorNotification = async (req) => {
   const { message, type, fatal, details } = req.body;
@@ -6,10 +7,20 @@ export const errorNotification = async (req) => {
     return;
   }
   const messageType = fatal ? "fatal" : "error";
+  const title = fatal ? "❌FATAL ERROR🆘" : "⭕ERROR";
   const textMessage = `Hey ${
     fatal ? "@everyone I'TS URGENT" : " "
   }we got an error \nmessage: ${message} \n type: ${type} \n details: ${details}`;
-  await discordServer.sendMessage({ message: textMessage, type: messageType });
+  const embededNotification = new EmbedBuilder()
+    .setColor("Red")
+    .setTitle(title)
+    .setDescription(textMessage)
+    .setTimestamp();
+  await discordServer.sendMessage({
+    embed: embededNotification,
+    message: textMessage,
+    type: messageType,
+  });
 };
 
 export const eventNotification = async (req) => {
@@ -18,5 +29,14 @@ export const eventNotification = async (req) => {
     return;
   }
   const messageText = `Hey we got a ${type} event \nmessage: ${message} \n details:\n ${details}`;
-  await discordServer.sendMessage({ message: messageText, type: "event" });
+  const embededNotification = new EmbedBuilder()
+    .setColor("Green")
+    .setTitle("💵💸EVENT NOTIFICATION🚀")
+    .setDescription(messageText)
+    .setTimestamp();
+  await discordServer.sendMessage({
+    embed: embededNotification,
+    message: messageText,
+    type: "event",
+  });
 };

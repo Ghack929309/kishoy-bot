@@ -7,6 +7,7 @@ import {
   MESSAGE_TYPE,
 } from "../constant/index.js";
 import GuildDataStore from "./store.js";
+import { EmbedBuilder } from "discord.js";
 
 class Discord {
   constructor({ client }) {
@@ -60,24 +61,27 @@ class Discord {
     return channel;
   }
 
-  async sendMessage({ message, type }) {
+  async sendMessage({ embed, message, type }) {
     if (type === MESSAGE_TYPE.ERROR) {
       const channel = await this.verifyChannel({
         channelName: errorChannelName,
       });
-      channel.send(message);
+      if (embed) channel.send({ embeds: [embed] });
+      else channel.send(message);
       console.log("error message sent");
     } else if (type === MESSAGE_TYPE.EVENT) {
       const channel = await this.verifyChannel({
         channelName: eventChannelName,
       });
-      channel.send(message);
+      if (embed) channel.send({ embeds: [embed] });
+      else channel.send(message);
       console.log("event message sent");
     } else if (type === MESSAGE_TYPE.FATAL) {
       const channel = await this.verifyChannel({
         channelName: fatalChannelName,
       });
-      channel.send(message);
+      if (embed) channel.send({ embeds: [embed] });
+      else channel.send(message);
       console.log("fatal message sent");
     }
   }
@@ -88,7 +92,8 @@ class Discord {
       fatalChannelName,
     ];
     if (deletedMessage.partial) await deletedMessage.fetch(true);
-
+    const deletedEmbed = deletedMessage.embeds[0];
+    const constructEmbed = EmbedBuilder.from(deletedEmbed);
     if (
       restrictedChannels.includes(deletedMessage.channel.name) &&
       deletedMessage.author.bot
@@ -96,6 +101,9 @@ class Discord {
       deletedMessage.channel.send(
         "message deletion is not allowed in this server."
       );
+      if (deletedEmbed) {
+        return deletedMessage.channel.send({ embeds: [constructEmbed] });
+      }
       deletedMessage.channel.send(
         `the deleted message was: ${deletedMessage.content}`
       );
