@@ -1,3 +1,10 @@
+import {
+  ChannelCategory,
+  errorChannelName,
+  fatalChannelName,
+  eventChannelName,
+  MESSAGE_TYPE,
+} from "../constant/index.js";
 import discordServer from "../discord/index.js";
 import { EmbedBuilder } from "discord.js";
 
@@ -6,7 +13,7 @@ export const errorNotification = async (req) => {
   if (!message || !type || !fatal || !details) {
     return;
   }
-  const messageType = fatal ? "fatal" : "error";
+  const messageType = fatal ? MESSAGE_TYPE.FATAL : MESSAGE_TYPE.ERROR;
   const title = fatal ? "❌FATAL ERROR🆘" : "⭕ERROR";
   const textMessage = `Hey ${
     fatal ? "@everyone I'TS URGENT" : " "
@@ -20,6 +27,8 @@ export const errorNotification = async (req) => {
     embed: embededNotification,
     message: textMessage,
     type: messageType,
+    channelName: fatal ? errorChannelName : fatalChannelName,
+    categoryName: ChannelCategory.KISHOY,
   });
 };
 
@@ -38,5 +47,7 @@ export const eventNotification = async (req) => {
     embed: embededNotification,
     message: messageText,
     type: "event",
+    channelName: eventChannelName,
+    categoryName: ChannelCategory.KISHOY,
   });
 };

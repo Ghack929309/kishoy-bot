@@ -7,3 +7,7 @@ export const MESSAGE_TYPE = {
   EVENT: "event",
   FATAL: "fatal",
 };
+
+export const ChannelCategory = {
+  KISHOY: "kishoy",
+};

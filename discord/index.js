@@ -41,7 +41,47 @@ class Discord {
     }
     return guild;
   }
-  async verifyChannel({ channelName }) {
+  async createCategory({ categoryName }) {
+    const guild = await this.getGuild();
+    let category;
+    category = guild.channels.cache.find(
+      (channel) =>
+        channel.name === categoryName &&
+        channel.type === ChannelType.GuildCategory
+    );
+    if (!category && guild) {
+      try {
+        category = await guild.channels.create({
+          name: categoryName,
+          type: ChannelType.GuildCategory,
+        });
+      } catch (error) {
+        console.error(`Category with name ${categoryName} not found`);
+      }
+    }
+    return category;
+  }
+  async createChannelUnderCategory({ categoryName, channelName }) {
+    const category = await this.createCategory({ categoryName });
+    let channel;
+    channel = category.children.cache.find(
+      (channel) =>
+        channel.name === channelName && channel.type === ChannelType.GuildText
+    );
+    if (!channel && category) {
+      try {
+        channel = await category.guild.channels.create({
+          name: channelName,
+          type: ChannelType.GuildText,
+          parent: category.id,
+        });
+      } catch (error) {
+        console.error(`Channel with name ${channelName} not found`);
+      }
+    }
+    return channel;
+  }
+  async createChannel({ channelName }) {
     const guild = await this.getGuild();
     let channel;
     channel = this.client.channels.cache.find(
@@ -61,24 +101,27 @@ class Discord {
     return channel;
   }
 
-  async sendMessage({ embed, message, type }) {
+  async sendMessage({ embed, message, type, channelName, categoryName }) {
     if (type === MESSAGE_TYPE.ERROR) {
-      const channel = await this.verifyChannel({
-        channelName: errorChannelName,
+      const channel = await this.createChannelUnderCategory({
+        channelName,
+        categoryName,
       });
       if (embed) channel.send({ embeds: [embed] });
       else channel.send(message);
       console.log("error message sent");
     } else if (type === MESSAGE_TYPE.EVENT) {
-      const channel = await this.verifyChannel({
-        channelName: eventChannelName,
+      const channel = await this.createChannelUnderCategory({
+        channelName,
+        categoryName,
       });
       if (embed) channel.send({ embeds: [embed] });
       else channel.send(message);
       console.log("event message sent");
     } else if (type === MESSAGE_TYPE.FATAL) {
-      const channel = await this.verifyChannel({
-        channelName: fatalChannelName,
+      const channel = await this.createChannelUnderCategory({
+        channelName,
+        categoryName,
       });
       if (embed) channel.send({ embeds: [embed] });
       else channel.send(message);
